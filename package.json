@@ -1,0 +1,55 @@
+{
+  "name": "@howaboua/pi-auto-trees",
+  "version": "0.1.0",
+  "description": "A Pi package that adds /marker and /end commands for incremental long-running coding sessions.",
+  "type": "module",
+  "license": "MIT",
+  "author": "pi-auto-trees contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IgorWarzocha/pi-auto-trees.git"
+  },
+  "bugs": {
+    "url": "https://github.com/IgorWarzocha/pi-auto-trees/issues"
+  },
+  "homepage": "https://github.com/IgorWarzocha/pi-auto-trees#readme",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "pi-coding-agent",
+    "coding-agent",
+    "slash-command",
+    "session-management"
+  ],
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "index.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "*"
+  },
+  "devDependencies": {
+    "@mariozechner/pi-coding-agent": "^0.69.0",
+    "typescript": "^5.7.3"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "pack:dry-run": "npm pack --dry-run",
+    "prepublishOnly": "npm run typecheck && npm run pack:dry-run"
+  },
+  "overrides": {
+    "uuid": "14.0.0"
+  }
+}

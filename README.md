@@ -1,6 +1,6 @@
-# pi-auto-trees
+# @howaboua/pi-auto-trees
 
-`pi-auto-trees` is a small Pi extension for long-running coding sessions.
+`@howaboua/pi-auto-trees` is a small [Pi](https://github.com/badlogic/pi-mono) package for long-running coding sessions.
 
 It helps you keep one session going without dragging all the implementation noise forward forever.
 
@@ -54,13 +54,45 @@ Examples:
 - `/end focus on API changes and migration notes`
 - `/end focus on reviewer feedback and follow-up risks`
 
-## Install
+## Install from npm
+
+Install it as a Pi package:
+
+```bash
+pi install npm:@howaboua/pi-auto-trees
+```
+
+Or try it for one session without adding it to your settings:
+
+```bash
+pi -e npm:@howaboua/pi-auto-trees
+```
+
+Then use `/marker` and `/end` inside Pi.
+
+## Local development
 
 Add the extension path to your Pi settings or launch Pi with it directly:
 
 ```bash
-pi --extension /path/to/pi-auto-trees/index.ts
+pi --extension ./index.ts
 ```
+
+Validate the package before publishing:
+
+```bash
+npm install
+npm run typecheck
+npm run pack:dry-run
+```
+
+Publish as a public scoped npm package:
+
+```bash
+npm publish --access public
+```
+
+`publishConfig.access` is already set to `public`, so plain `npm publish` also publishes with public access when your npm account can publish under the `@howaboua` scope.
 
 ## Result
 

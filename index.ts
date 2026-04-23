@@ -11,7 +11,9 @@
  * - /end <text> -> append custom focus instructions, like /tree custom summary
  *
  * Usage:
- *   pi --extension examples/extensions/incremental-workflow.ts
+ *   pi install npm:@howaboua/pi-auto-trees
+ *   # or for local development:
+ *   pi --extension ./index.ts
  */
 
 import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
