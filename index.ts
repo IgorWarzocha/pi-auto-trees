@@ -20,7 +20,6 @@ import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-age
 
 export const INCREMENTAL_WORKFLOW_STATE_ENTRY = "incremental-workflow-state";
 export const INCREMENTAL_WORKFLOW_MARKER_LABEL = "marker";
-export const INCREMENTAL_WORKFLOW_STATUS_KEY = "pi-auto-trees";
 export const INCREMENTAL_WORKFLOW_DEFAULT_END_PROMPT = [
 	"Treat this as a finished work increment that should become durable context for continuing the same repository session.",
 	"Focus on the final accepted outcome, not dead ends or step-by-step implementation noise.",
@@ -190,14 +189,13 @@ export default function (pi: ExtensionAPI) {
 				return;
 			}
 
-			ctx.ui.notify("Summarizing increment since marker…", "info");
-			ctx.ui.setStatus(INCREMENTAL_WORKFLOW_STATUS_KEY, "summarizing increment…");
+			ctx.ui.setWorkingMessage(ctx.ui.theme.fg("dim", "Summarizing increment since marker…"));
 
 			let result: Awaited<ReturnType<typeof ctx.navigateTree>>;
 			try {
 				result = await ctx.navigateTree(markerId, buildEndNavigationOptions(parseEndMode(args)));
 			} finally {
-				ctx.ui.setStatus(INCREMENTAL_WORKFLOW_STATUS_KEY, undefined);
+				ctx.ui.setWorkingMessage();
 			}
 
 			if (result.cancelled) {
