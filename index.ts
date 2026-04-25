@@ -202,7 +202,7 @@ export default function (pi: ExtensionAPI) {
 				return;
 			}
 
-			ctx.ui.setWorkingMessage(ctx.ui.theme.fg("dim", "Summarizing increment since marker…"));
+			ctx.ui.setWorkingMessage(ctx.ui.theme.fg("dim", "Summarizing increment…"));
 
 			let result: Awaited<ReturnType<typeof ctx.navigateTree>>;
 			try {
