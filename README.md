@@ -43,6 +43,9 @@ So the session stays usable for much longer.
 ### `/end`
 Uses the extension's default summary behavior, tuned for completed work increments.
 
+### `/end git`
+Uses the default summary behavior and also asks the summary to capture the git commit that should be made for the completed changes.
+
 ### `/end full`
 Uses Pi's normal branch-summary prompt.
 

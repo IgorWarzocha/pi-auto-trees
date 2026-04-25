@@ -7,6 +7,7 @@
  *
  * /end modes:
  * - /end        -> use the extension's default workflow-focused summary prompt
+ * - /end git    -> default summary prompt plus git commit instructions
  * - /end full   -> use pi's default branch summary prompt
  * - /end <text> -> append custom focus instructions, like /tree custom summary
  *
@@ -28,6 +29,10 @@ export const INCREMENTAL_WORKFLOW_DEFAULT_END_PROMPT = [
 	"Omit temporary debugging details, abandoned attempts, and incidental churn that no longer matters.",
 	"Write the summary so a future agent can continue from the repo familiarization and planning context plus this completed increment.",
 ].join("\n");
+export const INCREMENTAL_WORKFLOW_GIT_END_PROMPT = [
+	INCREMENTAL_WORKFLOW_DEFAULT_END_PROMPT,
+	"Also explicitly capture the git commit that should be made for the completed changes, including a concise commit subject and any important commit-body notes.",
+].join("\n");
 
 interface IncrementalWorkflowState {
 	version: 1;
@@ -36,6 +41,7 @@ interface IncrementalWorkflowState {
 
 type EndMode =
 	| { mode: "default" }
+	| { mode: "git" }
 	| { mode: "full" }
 	| { mode: "custom"; prompt: string };
 
@@ -79,6 +85,7 @@ function getSemanticLeafId(ctx: ExtensionContext): string | undefined {
 function parseEndMode(args: string): EndMode {
 	const trimmed = args.trim();
 	if (!trimmed) return { mode: "default" };
+	if (trimmed.toLowerCase() === "git") return { mode: "git" };
 	if (trimmed.toLowerCase() === "full") return { mode: "full" };
 	return { mode: "custom", prompt: trimmed };
 }
@@ -91,6 +98,12 @@ function buildEndNavigationOptions(mode: EndMode): {
 	switch (mode.mode) {
 		case "full":
 			return { summarize: true };
+		case "git":
+			return {
+				summarize: true,
+				customInstructions: INCREMENTAL_WORKFLOW_GIT_END_PROMPT,
+				replaceInstructions: false,
+			};
 		case "custom":
 			return {
 				summarize: true,
