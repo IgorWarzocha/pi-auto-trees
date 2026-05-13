@@ -11,6 +11,11 @@
  * - /end full   -> use pi's default branch summary prompt
  * - /end <text> -> append custom focus instructions, like /tree custom summary
  *
+ * /marker subcommands:
+ * - /marker            -> set marker at current point (yellow footer indicator)
+ * - /marker <text>    -> set marker with custom label text in footer
+ * The footer indicator clears automatically after /end.
+ *
  * Usage:
  *   pi install npm:@howaboua/pi-auto-trees
  *   # or for local development:
@@ -119,17 +124,38 @@ function buildEndNavigationOptions(mode: EndMode): {
 	}
 }
 
+const STATUS_KEY = "auto-trees-marker";
+
 export default function (pi: ExtensionAPI) {
 	let markerId: string | undefined;
+	let markerText: string | undefined;
+
+	const updateStatus = (ctx: ExtensionContext) => {
+		if (!ctx.hasUI) return;
+
+		if (markerId) {
+			const label = markerText
+				? ctx.ui.theme.fg("warning", `🏷 ${markerText}`)
+				: ctx.ui.theme.fg("warning", "🏷 marker");
+			ctx.ui.setStatus(STATUS_KEY, label);
+		} else {
+			ctx.ui.setStatus(STATUS_KEY, undefined);
+		}
+	};
 
 	const refreshState = (ctx: ExtensionContext) => {
-		markerId = readStateFromBranch(ctx)?.markerId;
+		const state = readStateFromBranch(ctx);
+		markerId = state?.markerId;
+		// Restore markerText from entry data if available
+		markerText = (state as IncrementalWorkflowState & { markerText?: string } | undefined)?.markerText ?? markerText;
+		updateStatus(ctx);
 	};
 
 	const applyMarker = (
 		ctx: ExtensionContext,
 		nextMarkerId: string,
 		notifyMessage: string,
+		text?: string,
 	): void => {
 		const previousMarkerId = markerId;
 
@@ -149,22 +175,31 @@ export default function (pi: ExtensionAPI) {
 			labelNote = ` Existing label "${existingLabel}" kept.`;
 		}
 
-		pi.appendEntry(INCREMENTAL_WORKFLOW_STATE_ENTRY, {
+		const stateData: IncrementalWorkflowState & { markerText?: string } = {
 			version: 1,
 			markerId: nextMarkerId,
-		} satisfies IncrementalWorkflowState);
+		};
+		if (text) {
+			stateData.markerText = text;
+		}
+		pi.appendEntry(INCREMENTAL_WORKFLOW_STATE_ENTRY, stateData);
 		markerId = nextMarkerId;
+		markerText = text;
 
-		ctx.ui.notify(`${notifyMessage}${labelNote}`, "info");
+		const displayText = text ? `Marker set: ${text}` : "Marker set";
+		ctx.ui.notify(`${displayText}${labelNote}`, "info");
+		updateStatus(ctx);
 	};
 
 	pi.on("session_start", async (_event, ctx) => refreshState(ctx));
 	pi.on("session_tree", async (_event, ctx) => refreshState(ctx));
 
 	pi.registerCommand("marker", {
-		description: "Mark the current conversation point as the incremental workflow checkpoint",
-		handler: async (_args, ctx) => {
+		description: "Mark the current conversation point as the incremental workflow checkpoint. Optionally provide text for the status indicator.",
+		handler: async (args, ctx) => {
 			await ctx.waitForIdle();
+
+			const trimmed = (args ?? "").trim();
 
 			const targetId = getSemanticLeafId(ctx);
 			if (!targetId) {
@@ -177,7 +212,8 @@ export default function (pi: ExtensionAPI) {
 				return;
 			}
 
-			applyMarker(ctx, targetId, "Marker set");
+			const text = trimmed || undefined;
+			applyMarker(ctx, targetId, "Marker set", text);
 		},
 	});
 
@@ -222,7 +258,12 @@ export default function (pi: ExtensionAPI) {
 				return;
 			}
 
-			applyMarker(ctx, nextMarkerId, "Increment summarized and marker advanced");
+			applyMarker(ctx, nextMarkerId, "Increment summarized", markerText);
+
+			// Clear the footer status after /end completes the cycle
+			markerId = undefined;
+			markerText = undefined;
+			updateStatus(ctx);
 		},
 	});
 }
