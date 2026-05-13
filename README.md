@@ -11,6 +11,15 @@ Marks the current point in the conversation as your checkpoint.
 
 This is useful after repo familiarization, exploration, planning, or any other point you want to return to later.
 
+A yellow **marker** indicator appears in the Pi footer while a marker is active, so you always know the mode is on.
+
+You can optionally provide label text that shows in the footer:
+
+- `/marker` sets the marker and shows a yellow **marker** label in the footer
+- `/marker auth refactor` sets the marker and shows a yellow **🏷 auth refactor** label
+
+The footer indicator clears automatically after `/end`.
+
 ### `/end`
 Summarizes the work done since the last `/marker`, jumps back to that checkpoint, and carries the result forward as a compact branch summary.
 
